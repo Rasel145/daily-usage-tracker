@@ -2,153 +2,174 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Daily Usage Tracker</title>
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
 
-<!-- NOTIFICATIONS -->
 <div class="notif-bar" id="notifBar"></div>
 
-<!-- LOGIN PAGE -->
-<div class="login-page" id="loginPage" style="display:none">
-  <div class="login-bg"></div>
-  <div class="login-card">
-    <div class="login-logo">
-      <div class="logo-icon" style="display:flex;align-items:center;justify-content:center">💰</div>
-      <h1>Daily Usage Tracker</h1>
-      <p>Smart personal finance management</p>
+<!-- ════════════════════════════════════════════════
+     AUTH PAGE  (centered on full screen)
+════════════════════════════════════════════════ -->
+<div id="authPage">
+  <div class="auth-box">
+    <div class="auth-header">
+      <div class="auth-logo">💰</div>
+      <h1 data-t="appName">Daily Usage Tracker</h1>
+      <p data-t="appTagline">Smart personal finance management</p>
     </div>
-    <div class="login-form">
-      <div class="form-group">
-        <label>Your Full Name</label>
-        <input type="text" id="loginName" placeholder="e.g. Rahman Ahmed">
-      </div>
-      <div class="form-group">
-        <label>Email Address</label>
-        <input type="email" id="loginEmail" placeholder="e.g. rahman@email.com">
-      </div>
-      <button class="btn btn-primary" onclick="doLogin()" style="width:100%;justify-content:center;padding:13px">
-        Get Started →
-      </button>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="login" onclick="switchTab('login')" data-t="tabLogin">Sign In</button>
+      <button class="auth-tab" data-tab="register" onclick="switchTab('register')" data-t="tabRegister">Create Account</button>
     </div>
-    <p style="text-align:center;font-size:12px;color:var(--text-muted);margin-top:20px">
-      All data stored locally on your device
-    </p>
+
+    <div class="auth-body">
+      <!-- LOGIN PANEL -->
+      <div class="auth-panel active" id="panel-login">
+        <div class="form-group">
+          <label data-t="emailLabel">Email Address</label>
+          <input type="email" id="lEmail" data-ph="emailPh" placeholder="your@email.com">
+        </div>
+        <div class="form-group">
+          <label data-t="passwordLabel">Password</label>
+          <input type="password" id="lPass" data-ph="passwordPh" placeholder="Enter your password" onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="doLogin()" data-t="btnLogin">Sign In →</button>
+        <p style="text-align:center;font-size:12px;color:var(--text-muted)" data-t="noAccount">
+          Don't have an account? <a href="#" onclick="switchTab('register')" style="color:var(--accent)" data-t="createOne">Create one</a>
+        </p>
+      </div>
+
+      <!-- REGISTER PANEL -->
+      <div class="auth-panel" id="panel-register">
+        <div class="form-group">
+          <label data-t="nameLabel">Full Name</label>
+          <input type="text" id="rName" data-ph="namePh" placeholder="Your full name">
+        </div>
+        <div class="form-group">
+          <label data-t="emailLabel">Email Address</label>
+          <input type="email" id="rEmail" data-ph="emailPh" placeholder="your@email.com">
+        </div>
+        <div class="form-group">
+          <label data-t="passwordLabel">Password</label>
+          <input type="password" id="rPass" data-ph="newPasswordPh" placeholder="Min 6 characters">
+        </div>
+        <div class="form-group">
+          <label data-t="confirmPassword">Confirm Password</label>
+          <input type="password" id="rPass2" data-ph="confirmPasswordPh" placeholder="Repeat password" onkeydown="if(event.key==='Enter')doRegister()">
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="doRegister()" data-t="btnRegister">Create Account →</button>
+        <p style="text-align:center;font-size:12px;color:var(--text-muted)" data-t="haveAccount">
+          Already have an account? <a href="#" onclick="switchTab('login')" style="color:var(--accent)" data-t="signIn">Sign in</a>
+        </p>
+      </div>
+    </div>
+
+    <div class="auth-footer" data-t="localStorageNote">🔒 All data stored securely on your device</div>
   </div>
 </div>
 
-<!-- APP SHELL -->
-<div id="appShell" style="display:none;width:100%;min-height:100vh">
-
-  <!-- SIDEBAR OVERLAY (mobile) -->
-  <div id="sidebarOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99" onclick="document.getElementById('sidebar').classList.remove('open');this.style.display='none'"></div>
+<!-- ════════════════════════════════════════════════
+     APP SHELL
+════════════════════════════════════════════════ -->
+<div id="appShell" style="display:none">
+  <div id="sideOverlay"></div>
 
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-badge">
-        <div class="logo-icon">💰</div>
-        <div class="logo-text">Daily Tracker<span>Finance Manager</span></div>
+    <div class="sb-logo">
+      <div class="sb-badge">
+        <div class="sb-icon">💰</div>
+        <div>
+          <div class="sb-name" data-t="appShortName">Daily Tracker</div>
+          <div class="sb-sub" data-t="financeManager">Finance Manager</div>
+        </div>
       </div>
     </div>
 
-    <nav class="sidebar-nav">
-      <div class="nav-section-label">Main</div>
-      <a class="nav-item" data-page="dashboard" onclick="navigate('dashboard')">
-        <span class="nav-icon">🏠</span> Dashboard
-      </a>
-      <a class="nav-item" data-page="expenses" onclick="navigate('expenses')">
-        <span class="nav-icon">💸</span> Expenses
-      </a>
-      <a class="nav-item" data-page="income" onclick="navigate('income')">
-        <span class="nav-icon">💼</span> Income
-      </a>
-
-      <div class="nav-section-label">Finance</div>
-      <a class="nav-item" data-page="savings" onclick="navigate('savings')">
-        <span class="nav-icon">🏦</span> Savings & Credit
-      </a>
-      <a class="nav-item" data-page="lend" onclick="navigate('lend')">
-        <span class="nav-icon">🤝</span> Lend List
-      </a>
-
-      <div class="nav-section-label">Insights</div>
-      <a class="nav-item" data-page="reports" onclick="navigate('reports')">
-        <span class="nav-icon">📊</span> Reports
-      </a>
-
-      <div class="nav-section-label">System</div>
-      <a class="nav-item" data-page="settings" onclick="navigate('settings')">
-        <span class="nav-icon">⚙️</span> Settings
-      </a>
+    <nav class="sb-nav">
+      <div class="nav-lbl" data-t="navMain">Main</div>
+      <a class="nav-item" data-pg="dashboard" onclick="navigate('dashboard')"><span class="nav-icon">🏠</span><span data-t="navDashboard">Dashboard</span></a>
+      <a class="nav-item" data-pg="expenses" onclick="navigate('expenses')"><span class="nav-icon">💸</span><span data-t="navExpenses">Expenses</span></a>
+      <a class="nav-item" data-pg="income" onclick="navigate('income')"><span class="nav-icon">💼</span><span data-t="navIncome">Income</span></a>
+      <div class="nav-lbl" data-t="navFinance">Finance</div>
+      <a class="nav-item" data-pg="savings" onclick="navigate('savings')"><span class="nav-icon">🏦</span><span data-t="navSavings">Savings & Credit</span></a>
+      <a class="nav-item" data-pg="lend" onclick="navigate('lend')"><span class="nav-icon">🤝</span><span data-t="navLend">Lend List</span></a>
+      <div class="nav-lbl" data-t="navInsights">Insights</div>
+      <a class="nav-item" data-pg="reports" onclick="navigate('reports')"><span class="nav-icon">📊</span><span data-t="navReports">Reports</span></a>
+      <div class="nav-lbl" data-t="navSystem">System</div>
+      <a class="nav-item" data-pg="settings" onclick="navigate('settings')"><span class="nav-icon">⚙️</span><span data-t="navSettings">Settings</span></a>
     </nav>
 
-    <div class="sidebar-footer">
+    <div class="sb-foot">
       <div class="user-card">
-        <div class="user-avatar" id="sidebarUserAvatar">U</div>
-        <div class="user-info">
-          <div class="user-name" id="sidebarUserName">User</div>
-          <div class="user-role" id="sidebarUserRole">Personal</div>
+        <div class="u-avatar" id="sbAvatar">U</div>
+        <div>
+          <div class="u-name" id="sbName">User</div>
+          <div class="u-role" id="sbRole">Personal</div>
         </div>
       </div>
     </div>
   </aside>
 
-  <!-- MAIN CONTENT -->
+  <!-- MAIN AREA -->
   <main class="main">
     <div class="topbar">
-      <div style="display:flex;align-items:center;gap:14px">
-        <button class="mobile-toggle" id="mobileToggle" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').style.display='block'">☰</button>
-        <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="mobile-toggle" id="mToggle">☰</button>
+        <div class="topbar-title" id="topTitle" data-t="navDashboard">Dashboard</div>
       </div>
       <div class="topbar-right">
-        <div class="topbar-date" id="topbarDate"></div>
-        <button class="btn btn-ghost btn-sm" onclick="doLogout()">Sign Out</button>
+        <span class="topbar-date" id="topDate"></span>
+        <div id="themeToggle" onclick="toggleTheme()" title="Toggle theme">☀️</div>
+        <div id="langToggle" onclick="toggleLang()" title="Toggle language">বাং</div>
+        <button class="btn btn-ghost btn-sm" onclick="doLogout()" data-t="signOut">Sign Out</button>
       </div>
     </div>
 
     <div class="page-content">
 
-      <!-- ── DASHBOARD PAGE ──────────────────────────────── -->
-      <div class="page" id="page-dashboard">
+      <!-- ── DASHBOARD ──────────────────────────────── -->
+      <div class="page" id="pg-dashboard">
         <div id="dashStats" class="stats-grid"></div>
         <div class="two-col">
           <div class="card">
             <div class="card-header">
-              <div class="card-title"><span class="icon">📋</span> Today's Expenses</div>
-              <button class="btn btn-primary btn-sm" onclick="navigate('expenses')">+ Add Expense</button>
+              <div class="card-title">📋 <span data-t="todayExpenses">Today's Expenses</span></div>
+              <button class="btn btn-primary btn-sm" onclick="navigate('expenses')" data-t="addExpense">+ Add</button>
             </div>
-            <div id="dashTodayList"></div>
+            <div id="dashToday"></div>
           </div>
           <div class="card">
             <div class="card-header">
-              <div class="card-title"><span class="icon">📊</span> Monthly Breakdown</div>
+              <div class="card-title">📊 <span data-t="monthlyBreakdown">Monthly Breakdown</span></div>
             </div>
-            <div id="dashCatBreakdown"></div>
+            <div id="dashBreak"></div>
           </div>
         </div>
       </div>
 
-      <!-- ── EXPENSES PAGE ───────────────────────────────── -->
-      <div class="page" id="page-expenses">
+      <!-- ── EXPENSES ───────────────────────────────── -->
+      <div class="page" id="pg-expenses">
         <div class="card">
           <div class="card-header">
-            <div class="card-title"><span class="icon">➕</span> Add Expense</div>
+            <div class="card-title">➕ <span data-t="addExpenseTitle">Add Expense</span></div>
           </div>
           <div class="form-grid">
             <div class="form-group">
-              <label>Date</label>
-              <input type="date" id="expDate">
+              <label data-t="date">Date</label>
+              <input type="date" id="eDate">
             </div>
             <div class="form-group">
-              <label>Category</label>
-              <select id="expCategory">
-                <option value="">Select category…</option>
-                <option value="food">🍽️ Food & Dining</option>
-                <option value="mobile">📱 Mobile & Internet</option>
+              <label data-t="category">Category</label>
+              <select id="eCat">
+                <option value="" data-t="selectCategory">Select category…</option>
+                <option value="food">🍽️ Food &amp; Dining</option>
+                <option value="mobile">📱 Mobile &amp; Internet</option>
                 <option value="traveling">✈️ Traveling</option>
                 <option value="medical">🏥 Medical</option>
                 <option value="shopping">🛍️ Shopping</option>
@@ -156,191 +177,202 @@
                 <option value="materials">📝 Study Materials</option>
                 <option value="friends">👥 With Friends</option>
                 <option value="donation">❤️ Donation</option>
+                <option value="house_rent">🏠 House Rent</option>
                 <option value="other">💸 Other</option>
               </select>
             </div>
             <div class="form-group">
-              <label>Amount (BDT)</label>
-              <input type="number" id="expAmount" placeholder="0.00" min="0" step="0.01">
+              <label data-t="amount">Amount (BDT)</label>
+              <input type="number" id="eAmt" placeholder="0.00" min="0" step="0.01">
             </div>
             <div class="form-group">
-              <label>Notes (Optional)</label>
-              <input type="text" id="expNotes" placeholder="Brief description…">
+              <label data-t="notes">Notes (Optional)</label>
+              <input type="text" id="eNotes" data-ph="optionalNote" placeholder="Brief description…">
             </div>
           </div>
           <div class="form-actions">
-            <button class="btn btn-primary" onclick="addExpense()">💸 Add Expense</button>
+            <button class="btn btn-primary" onclick="addExp()" data-t="addExpenseBtn">💸 Add Expense</button>
           </div>
         </div>
 
         <div class="card">
           <div class="card-header">
-            <div class="card-title"><span class="icon">📋</span> Expense History</div>
-            <div style="display:flex;align-items:center;gap:12px">
-              <div class="month-selector">
-                <button class="month-btn" onclick="changeExpMonth(-1)">‹</button>
-                <span id="expMonthLabel">—</span>
-                <button class="month-btn" onclick="changeExpMonth(1)">›</button>
+            <div class="card-title">📋 <span data-t="expenseHistory">Expense History</span></div>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <div class="mon-sel">
+                <div class="mon-btn" onclick="changeExpMon(-1)">‹</div>
+                <span id="expMon"></span>
+                <div class="mon-btn" onclick="changeExpMon(1)">›</div>
               </div>
-              <div>
-                <span style="font-size:12px;color:var(--text-muted)" id="expCount"></span>
-                <span style="font-size:14px;font-weight:700;color:var(--danger);margin-left:10px;font-family:var(--mono)" id="expTotal"></span>
-              </div>
+              <span style="font-family:var(--mono);color:var(--danger);font-weight:700" id="expTot"></span>
+              <span style="font-size:12px;color:var(--text-muted)" id="expCnt"></span>
             </div>
           </div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Date</th><th>Category</th><th>Amount</th><th>Notes</th><th>Action</th></tr></thead>
-              <tbody id="expTable"></tbody>
+              <thead><tr>
+                <th data-t="date">Date</th><th data-t="category">Category</th>
+                <th data-t="amount">Amount</th><th data-t="notes">Notes</th><th></th>
+              </tr></thead>
+              <tbody id="expTbl"></tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- ── INCOME PAGE ─────────────────────────────────── -->
-      <div class="page" id="page-income">
+      <!-- ── INCOME ──────────────────────────────────── -->
+      <div class="page" id="pg-income">
         <div class="card">
           <div class="card-header">
-            <div class="card-title"><span class="icon">💼</span> Record Monthly Income</div>
+            <div class="card-title">💼 <span data-t="recordIncome">Record Monthly Income</span></div>
           </div>
           <div class="form-grid">
             <div class="form-group">
-              <label>Month</label>
-              <input type="month" id="incMonth">
+              <label data-t="month">Month</label>
+              <input type="month" id="incMon">
             </div>
             <div class="form-group">
-              <label>Income Amount (BDT)</label>
-              <input type="number" id="incAmount" placeholder="e.g. 50000" min="0" step="0.01">
+              <label data-t="incomeAmount">Income Amount (BDT)</label>
+              <input type="number" id="incAmt" placeholder="e.g. 50000" min="0" step="0.01">
             </div>
-            <div class="form-group span2">
-              <label>Notes (Optional)</label>
-              <input type="text" id="incNotes" placeholder="e.g. Salary, Freelance, etc.">
+            <div class="form-group s2">
+              <label data-t="notes">Notes (Optional)</label>
+              <input type="text" id="incNotes" data-ph="incomeNote" placeholder="e.g. Salary, Freelance…">
             </div>
           </div>
           <div class="form-actions">
-            <button class="btn btn-primary" onclick="addIncome()">💼 Save Income</button>
+            <button class="btn btn-primary" onclick="addInc()" data-t="saveIncomeBtn">💼 Save Income</button>
           </div>
         </div>
-
         <div class="card">
           <div class="card-header">
-            <div class="card-title"><span class="icon">📋</span> Income History</div>
+            <div class="card-title">📋 <span data-t="incomeHistory">Income History</span></div>
           </div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Month</th><th>Amount</th><th>Notes</th><th>Recorded On</th><th>Action</th></tr></thead>
-              <tbody id="incomeTable"></tbody>
+              <thead><tr>
+                <th data-t="month">Month</th><th data-t="amount">Amount</th>
+                <th data-t="notes">Notes</th><th data-t="recordedOn">Recorded On</th><th></th>
+              </tr></thead>
+              <tbody id="incTbl"></tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- ── SAVINGS & CREDIT PAGE ───────────────────────── -->
-      <div class="page" id="page-savings">
-        <div id="savSummary" class="stats-grid"></div>
-
+      <!-- ── SAVINGS & CREDIT ───────────────────────── -->
+      <div class="page" id="pg-savings">
+        <div id="savStats" class="stats-grid"></div>
         <div class="card">
           <div class="card-header">
-            <div class="card-title"><span class="icon">📅</span> Month-End Processing</div>
+            <div class="card-title">📅 <span data-t="monthEndProcess">Month-End Processing</span></div>
           </div>
-          <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">
-            Close a month to calculate net result and update Savings or Credit accordingly.
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px" data-t="monthEndDesc">
+            Close a month to calculate net result and update Savings or Credit.
           </p>
           <div id="monthCloseList"></div>
         </div>
-
         <div class="two-col">
           <div class="card">
             <div class="card-header">
-              <div class="card-title"><span class="icon">🏦</span> Savings History</div>
+              <div class="card-title">🏦 <span data-t="savingsHistory">Savings History</span></div>
             </div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Month</th><th>Amount Added</th><th>Date</th></tr></thead>
-                <tbody id="savTable"></tbody>
+                <thead><tr><th data-t="month">Month</th><th data-t="added">Amount Added</th><th data-t="date">Date</th></tr></thead>
+                <tbody id="savTbl"></tbody>
               </table>
             </div>
           </div>
           <div class="card">
             <div class="card-header">
-              <div class="card-title"><span class="icon">💳</span> Credit History</div>
+              <div class="card-title">💳 <span data-t="creditHistory">Credit History</span></div>
             </div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Month</th><th>Deficit</th><th>Date</th></tr></thead>
-                <tbody id="credTable"></tbody>
+                <thead><tr><th data-t="month">Month</th><th data-t="deficit">Deficit</th><th data-t="date">Date</th></tr></thead>
+                <tbody id="credTbl"></tbody>
               </table>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- ── LEND LIST PAGE ──────────────────────────────── -->
-      <div class="page" id="page-lend">
+      <!-- ── LEND LIST ───────────────────────────────── -->
+      <div class="page" id="pg-lend">
         <div id="lendStats" class="stats-grid"></div>
-
         <div class="card">
           <div class="card-header">
-            <div class="card-title"><span class="icon">🤝</span> Add Lending Record</div>
+            <div class="card-title">🤝 <span data-t="addLendRecord">Add Lending Record</span></div>
+            <div class="export-group">
+              <button class="btn btn-ghost btn-sm" onclick="lendExportCSV()">⬇ CSV</button>
+              <button class="btn btn-ghost btn-sm" onclick="lendExportExcel()">⬇ Excel</button>
+              <button class="btn btn-ghost btn-sm" onclick="lendExportPDF()">⬇ PDF</button>
+            </div>
           </div>
           <div class="form-grid">
             <div class="form-group">
-              <label>Person Name</label>
-              <input type="text" id="lendPerson" placeholder="Who did you lend to?">
+              <label data-t="personName">Person Name</label>
+              <input type="text" id="lPerson" data-ph="personNamePh" placeholder="Who did you lend to?">
             </div>
             <div class="form-group">
-              <label>Amount (BDT)</label>
-              <input type="number" id="lendAmount" placeholder="0.00" min="0">
+              <label data-t="amount">Amount (BDT)</label>
+              <input type="number" id="lAmt" placeholder="0.00" min="0">
             </div>
             <div class="form-group">
-              <label>Date Lent</label>
-              <input type="date" id="lendDate">
+              <label data-t="dateLent">Date Lent</label>
+              <input type="date" id="lDate">
             </div>
             <div class="form-group">
-              <label>Notes (Optional)</label>
-              <input type="text" id="lendNotes" placeholder="Reason or extra info…">
+              <label data-t="notes">Notes (Optional)</label>
+              <input type="text" id="lNotes" data-ph="optionalNote" placeholder="Reason or extra info…">
             </div>
           </div>
           <div class="form-actions">
-            <button class="btn btn-primary" onclick="addLend()">🤝 Record Lend</button>
+            <button class="btn btn-primary" onclick="addLend()" data-t="recordLendBtn">🤝 Record Lend</button>
           </div>
         </div>
-
         <div class="card">
           <div class="card-header">
-            <div class="card-title"><span class="icon">📋</span> Lending Records</div>
+            <div class="card-title">📋 <span data-t="lendingRecords">Lending Records</span></div>
           </div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Person</th><th>Amount</th><th>Date</th><th>Notes</th><th>Status</th><th>Actions</th></tr></thead>
-              <tbody id="lendTable"></tbody>
+              <thead><tr>
+                <th data-t="person">Person</th><th data-t="amount">Amount</th>
+                <th data-t="date">Date</th><th data-t="notes">Notes</th>
+                <th data-t="status">Status</th><th data-t="actions">Actions</th>
+              </tr></thead>
+              <tbody id="lendTbl"></tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- ── REPORTS PAGE ────────────────────────────────── -->
-      <div class="page" id="page-reports">
-        <div class="card" style="margin-bottom:20px">
+      <!-- ── REPORTS ─────────────────────────────────── -->
+      <div class="page" id="pg-reports">
+        <div class="card">
           <div class="card-header">
-            <div class="card-title"><span class="icon">📊</span> Monthly Report</div>
-            <div style="display:flex;align-items:center;gap:12px">
-              <div class="month-selector">
-                <button class="month-btn" onclick="changeRptMonth(-1)">‹</button>
-                <span id="rptMonthLabel">—</span>
-                <button class="month-btn" onclick="changeRptMonth(1)">›</button>
+            <div class="card-title">📊 <span data-t="monthlyReport">Monthly Report</span></div>
+            <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+              <div class="mon-sel">
+                <div class="mon-btn" onclick="changeRptMon(-1)">‹</div>
+                <span id="rptMon"></span>
+                <div class="mon-btn" onclick="changeRptMon(1)">›</div>
               </div>
-              <button class="btn btn-ghost btn-sm" onclick="exportReport()">⬇ Export CSV</button>
+              <div class="export-group">
+                <button class="btn btn-ghost btn-sm" onclick="rptExportCSV()">⬇ CSV</button>
+                <button class="btn btn-ghost btn-sm" onclick="rptExportExcel()">⬇ Excel</button>
+                <button class="btn btn-ghost btn-sm" onclick="rptExportPDF()">⬇ PDF</button>
+              </div>
             </div>
           </div>
         </div>
-
-        <div id="rptSummary" class="stats-grid"></div>
-
+        <div id="rptStats" class="stats-grid"></div>
         <div class="two-col">
           <div class="card">
             <div class="card-header">
-              <div class="card-title"><span class="icon">🥧</span> Category Breakdown</div>
+              <div class="card-title">🥧 <span data-t="categoryBreakdown">Category Breakdown</span></div>
             </div>
             <div class="chart-container">
               <canvas id="rptChart"></canvas>
@@ -348,84 +380,89 @@
           </div>
           <div class="card">
             <div class="card-header">
-              <div class="card-title"><span class="icon">📋</span> By Category</div>
+              <div class="card-title">📋 <span data-t="byCategory">By Category</span></div>
             </div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Category</th><th>Amount</th><th>% of Total</th></tr></thead>
-                <tbody id="rptCatTable"></tbody>
+                <thead><tr><th data-t="category">Category</th><th data-t="amount">Amount</th><th>%</th></tr></thead>
+                <tbody id="rptCatTbl"></tbody>
               </table>
             </div>
           </div>
         </div>
-
         <div class="card">
           <div class="card-header">
-            <div class="card-title"><span class="icon">📈</span> 6-Month Trend</div>
+            <div class="card-title">📈 <span data-t="sixMonthTrend">6-Month Trend</span></div>
           </div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Month</th><th>Income</th><th>Expenses</th><th>Net</th></tr></thead>
-              <tbody id="rptTrendTable"></tbody>
+              <thead><tr>
+                <th data-t="month">Month</th><th data-t="income">Income</th>
+                <th data-t="expenses">Expenses</th><th data-t="net">Net</th>
+              </tr></thead>
+              <tbody id="rptTrend"></tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- ── SETTINGS PAGE ───────────────────────────────── -->
-      <div class="page" id="page-settings">
+      <!-- ── SETTINGS ────────────────────────────────── -->
+      <div class="page" id="pg-settings">
         <div class="two-col">
           <div class="card">
             <div class="card-header">
-              <div class="card-title"><span class="icon">👤</span> Profile Settings</div>
+              <div class="card-title">👤 <span data-t="profileSettings">Profile Settings</span></div>
             </div>
-            <div class="form-grid full">
+            <div class="form-grid one">
               <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" id="settName" placeholder="Your name">
+                <label data-t="nameLabel">Full Name</label>
+                <input type="text" id="sName">
               </div>
               <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" id="settEmail" placeholder="your@email.com">
+                <label data-t="emailLabel">Email</label>
+                <input type="email" id="sEmail">
               </div>
               <div class="form-group">
-                <label>Role / Label</label>
-                <input type="text" id="settRole" placeholder="e.g. Personal, Student…">
+                <label data-t="roleLabel">Role / Label</label>
+                <input type="text" id="sRole" data-ph="rolePh" placeholder="e.g. Personal, Student…">
               </div>
             </div>
             <div class="form-actions">
-              <button class="btn btn-primary" onclick="saveSettings()">💾 Save Profile</button>
+              <button class="btn btn-primary" onclick="saveSettings()" data-t="saveProfile">💾 Save Profile</button>
             </div>
           </div>
-
           <div class="card">
             <div class="card-header">
-              <div class="card-title"><span class="icon">ℹ️</span> App Information</div>
+              <div class="card-title">ℹ️ <span data-t="appInfo">App Information</span></div>
             </div>
-            <div style="display:flex;flex-direction:column;gap:14px;font-size:13.5px">
-              <div style="display:flex;justify-content:space-between;padding:12px;background:var(--surface2);border-radius:var(--radius-sm)">
-                <span style="color:var(--text-muted)">Version</span>
-                <span style="font-family:var(--mono)">1.0.0</span>
+            <div style="display:flex;flex-direction:column;gap:12px;font-size:13.5px">
+              <div style="display:flex;justify-content:space-between;padding:11px;background:var(--surface2);border-radius:var(--radius-sm)">
+                <span style="color:var(--text-muted)" data-t="version">Version</span><span style="font-family:var(--mono)">2.0.0</span>
               </div>
-              <div style="display:flex;justify-content:space-between;padding:12px;background:var(--surface2);border-radius:var(--radius-sm)">
-                <span style="color:var(--text-muted)">Currency</span>
-                <span style="font-family:var(--mono)">BDT (৳)</span>
+              <div style="display:flex;justify-content:space-between;padding:11px;background:var(--surface2);border-radius:var(--radius-sm)">
+                <span style="color:var(--text-muted)" data-t="currency">Currency</span><span style="font-family:var(--mono)">BDT (৳)</span>
               </div>
-              <div style="display:flex;justify-content:space-between;padding:12px;background:var(--surface2);border-radius:var(--radius-sm)">
-                <span style="color:var(--text-muted)">Storage</span>
-                <span style="font-family:var(--mono)">Local Browser</span>
+              <div style="display:flex;justify-content:space-between;padding:11px;background:var(--surface2);border-radius:var(--radius-sm)">
+                <span style="color:var(--text-muted)" data-t="storage">Storage</span><span style="font-family:var(--mono)" data-t="localStorage">Local Browser</span>
               </div>
-              <div style="display:flex;justify-content:space-between;padding:12px;background:var(--surface2);border-radius:var(--radius-sm)">
-                <span style="color:var(--text-muted)">Categories</span>
-                <span style="font-family:var(--mono)">10 categories</span>
+              <div style="display:flex;justify-content:space-between;padding:11px;background:var(--surface2);border-radius:var(--radius-sm)">
+                <span style="color:var(--text-muted)" data-t="categoriesCount">Categories</span><span style="font-family:var(--mono)">10</span>
               </div>
             </div>
-            <div style="margin-top:20px;padding:16px;background:rgba(248,113,113,0.05);border:1px solid rgba(248,113,113,0.2);border-radius:var(--radius-sm)">
-              <p style="font-size:13px;font-weight:600;color:var(--danger);margin-bottom:10px">⚠️ Danger Zone</p>
-              <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">This will permanently delete all your data. This action cannot be undone.</p>
-              <button class="btn btn-danger btn-sm" onclick="clearAllData()">🗑 Clear All Data</button>
+            <div style="margin-top:18px;padding:14px;background:rgba(248,113,113,.05);border:1px solid rgba(248,113,113,.2);border-radius:var(--radius-sm)">
+              <p style="font-size:13px;font-weight:600;color:var(--danger);margin-bottom:8px" data-t="dangerZone">⚠️ Danger Zone</p>
+              <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px" data-t="clearDesc">This will permanently delete all your data.</p>
+              <button class="btn btn-danger btn-sm" onclick="clearAll()" data-t="clearBtn">🗑 Clear All Data</button>
             </div>
           </div>
+        </div>
+
+        <!-- DB SETUP GUIDE -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🗄️ <span data-t="dbGuideTitle">Database Setup Guide (বাংলা)</span></div>
+          </div>
+          <div id="dbGuide" style="font-size:13.5px;line-height:1.8;color:var(--text-dim)"></div>
         </div>
       </div>
 
@@ -434,22 +471,5 @@
 </div><!-- end appShell -->
 
 <script src="js/app.js"></script>
-<script>
-  // Update topbar date
-  (function() {
-    const d = new Date();
-    document.getElementById('topbarDate').textContent =
-      d.toLocaleDateString('en-BD', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
-  })();
-
-  // Fix mobile sidebar overlay
-  document.getElementById('mobileToggle').addEventListener('click', function() {
-    const s = document.getElementById('sidebar');
-    const o = document.getElementById('sidebarOverlay');
-    s.classList.toggle('open');
-    o.style.display = s.classList.contains('open') ? 'block' : 'none';
-  });
-</script>
-
 </body>
 </html>
